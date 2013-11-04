@@ -306,7 +306,7 @@ func (num Base32) Decode() (result uint32, err error) {
 
 		// Second half of the valid rune check. An invalid rune will return a
 		// value of 0 (the Go zero value for integers). The only legitimate rune
-		// that should return a value of 0 is '0'.
+		// that should return a value of 0 is '0', 'o', or 'O'.
 		//
 		// Doing the validity check this way rather than validBase32Digit[rune]
 		// is much, much faster according to BenchmarkDecode.
@@ -314,7 +314,7 @@ func (num Base32) Decode() (result uint32, err error) {
 		// TODO: Figure out why that is. How much overhead is involved when Go
 		// does a map lookup?
 		//
-		if val == 0 && rune != '0' {
+		if val == 0 && (rune != '0' && rune != 'o' && rune != 'O') {
 			err = decodeInvalidDigit
 			return
 		}

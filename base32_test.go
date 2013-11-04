@@ -112,6 +112,28 @@ func TestBase32_Decode(t *testing.T) {
 			t.Fatalf("Expected invalid Base32 value, %q, to return an error message from Decode(), got nil.\n", base32)
 		}
 	}
+
+	// Decode needs to be robust against the common errors. The above test cases
+	// do not check for that. These do:
+
+	var cases = []struct {
+		Encoded  Base32
+		Expected uint32
+	}{
+		{Base32("o"), 0},
+		{Base32("o0"), 0},
+		{Base32("0l"), 1},
+	}
+
+	for _, c := range cases {
+		var output uint32
+		output, err := c.Encoded.Decode()
+		if err != nil || output != c.Expected {
+			t.Errorf("Expected Base32(%q).Decode() to return %d, <nil>; got %d, %#v",
+				c.Encoded, c.Expected, output, err)
+		}
+	}
+
 }
 
 func TestBase32_IsValid(t *testing.T) {
@@ -282,6 +304,7 @@ func BenchmarkEncode(b *testing.B) {
 // BenchmarkDecode 20000000          79.8 ns/op # bit shifting
 // BenchmarkDecode 20000000          80.1 ns/op         0 B/op        0 allocs/op # Uses validBase32Digit map to check for valid rune.
 // BenchmarkDecode 50000000          35.8 ns/op         0 B/op        0 allocs/op # Do manual check on rune to see if its valid.
+// BenchmarkDecode 50000000          56.5 ns/op         0 B/op        0 allocs/op # Add checks for 'o' and 'O'.
 func BenchmarkDecode(b *testing.B) {
 	var base32 Base32
 
