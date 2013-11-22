@@ -1,3 +1,5 @@
+[![Build Status](https://drone.io/github.com/Dancapistan/gobase32/status.png)](https://drone.io/github.com/Dancapistan/gobase32/latest)
+
 A Base32-to-Decimal Converter for Go
 ====================================
 
