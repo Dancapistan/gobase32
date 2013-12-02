@@ -78,6 +78,42 @@ func TestFromString(t *testing.T) {
 	}
 }
 
+func TestCheckFromString(t *testing.T) {
+	cases := []struct {
+		input    string
+		expected Check
+		err      error
+	}{
+		{"", InvalidCheckValue, invalidCheckLength},
+		{"12", InvalidCheckValue, invalidCheckLength},
+		{"A", 'A', nil},
+		{"a", 'A', nil},
+		{"o", '0', nil},
+		{"l", '1', nil},
+		{"*", '*', nil},
+		{"~", '~', nil},
+		{"$", '$', nil},
+		{"=", '=', nil},
+		{"u", 'U', nil},
+		{"U", 'U', nil},
+		{"&", InvalidCheckValue, invalidCheckDigit},
+		{"\u6E2C", InvalidCheckValue, invalidCheckLength}, // TODO the error should be invalidCheckDigit
+	}
+
+	for _, c := range cases {
+		actual, err := CheckFromString(c.input)
+		if actual != c.expected {
+			t.Errorf("Expected CheckFromString(%q) to return %q, got %q",
+				c.input, c.expected, actual)
+		}
+
+		if err != c.err {
+			t.Errorf("Expected CheckFromSTring(%q) to return an error %v, got %v",
+				c.input, c.err, err)
+		}
+	}
+}
+
 func TestBase32_Decode(t *testing.T) {
 
 	for expected, base32 := range encodingTestCases {

@@ -453,7 +453,6 @@ var (
 // - The input character must be a valid Check value. See type Check for a
 // list of valid Check digits and corresponding error corrections.
 //
-// TODO Add tests
 func CheckFromString(input string) (result Check, err error) {
 
 	if len(input) != 1 {
