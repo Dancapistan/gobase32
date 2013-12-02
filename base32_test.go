@@ -186,6 +186,23 @@ func TestMalformed(t *testing.T) {
 	}
 }
 
+func TestBase32_String(t *testing.T) {
+	cases := []struct {
+		input    Base32
+		expected string
+	}{
+		{Base32("EXAMP1E"), "EXAMP1E"},
+		{InvalidBase32Value, "<invalid>"},
+	}
+
+	for _, c := range cases {
+		actual := c.input.String()
+		if actual != c.expected {
+			t.Errorf("Expected Base32(%q).String() to be %q, got %q", c.input, c.expected, actual)
+		}
+	}
+}
+
 // Generates a slice of bytes that contains bytes that are not valid Base32
 // ASCII-encoded digits. The length of the slice is random, at least 1. The
 // contents of the slice are random but guaranteed to have at least one invalid
