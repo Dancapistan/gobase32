@@ -291,30 +291,23 @@ func (num Base32) Decode() (result uint32, err error) {
 	// For each base-32 character, convert that into its decoding bits
 	// and add it to the result.
 	var width = uint(shift)
-	for _, rune := range num {
+	for _, rn := range num {
 
 		// Check for invalid rune. This is only half a check. We check to make
 		// sure the rune is not too big, or else it will cause an array index
 		// out of bounds error when we get the decodingValue.
-		if rune > decodeMaxRune {
+		if rn > decodeMaxRune || rn < decodeMinRune {
 			err = decodeInvalidDigit
 			return
 		}
 
 		// Convert the character into its byte value.
-		val := decodingValue[rune]
+		val := decodingValue[rn]
 
 		// Second half of the valid rune check. An invalid rune will return a
-		// value of 0 (the Go zero value for integers). The only legitimate rune
-		// that should return a value of 0 is '0', 'o', or 'O'.
+		// value of invalidDecodeValue.
 		//
-		// Doing the validity check this way rather than validBase32Digit[rune]
-		// is much, much faster according to BenchmarkDecode.
-		//
-		// TODO: Figure out why that is. How much overhead is involved when Go
-		// does a map lookup?
-		//
-		if val == 0 && (rune != '0' && rune != 'o' && rune != 'O') {
+		if val == invalidDecodeValue {
 			err = decodeInvalidDigit
 			return
 		}
@@ -592,9 +585,11 @@ var validBase32Digit = map[rune]bool{
 }
 
 const decodeMaxRune = 'z'
+const decodeMinRune = '0'
+const invalidDecodeValue = 99 // 31 is the maximum valid value
 
 var decodingValue = [...]uint32{
-	'0': 0,
+	'0': 0, // 48 = 0x30
 	'1': 1,
 	'2': 2,
 	'3': 3,
@@ -603,8 +598,15 @@ var decodingValue = [...]uint32{
 	'6': 6,
 	'7': 7,
 	'8': 8,
-	'9': 9,
-	'A': 10,
+	'9': 9, // 57 = 0x39
+	58:  invalidDecodeValue,
+	59:  invalidDecodeValue,
+	60:  invalidDecodeValue,
+	61:  invalidDecodeValue,
+	62:  invalidDecodeValue,
+	63:  invalidDecodeValue,
+	64:  invalidDecodeValue,
+	'A': 10, // 65 = 0x40
 	'B': 11,
 	'C': 12,
 	'D': 13,
@@ -624,12 +626,19 @@ var decodingValue = [...]uint32{
 	'R': 24,
 	'S': 25,
 	'T': 26,
+	'U': invalidDecodeValue,
 	'V': 27,
 	'W': 28,
 	'X': 29,
 	'Y': 30,
-	'Z': 31,
-	'a': 10,
+	'Z': 31, // 90 = 0x5A
+	91:  invalidDecodeValue,
+	92:  invalidDecodeValue,
+	93:  invalidDecodeValue,
+	94:  invalidDecodeValue,
+	95:  invalidDecodeValue,
+	96:  invalidDecodeValue,
+	'a': 10, // 97 = 0x61
 	'b': 11,
 	'c': 12,
 	'd': 13,
@@ -649,6 +658,7 @@ var decodingValue = [...]uint32{
 	'r': 24,
 	's': 25,
 	't': 26,
+	'u': invalidDecodeValue,
 	'v': 27,
 	'w': 28,
 	'x': 29,
