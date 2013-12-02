@@ -19,7 +19,7 @@ import (
 	"errors"
 )
 
-const PackageVersion string = "0.0.1-alpha"
+const PackageVersion string = "0.0.3"
 
 // A base-32 number, encoded as a UTF-8/ASCII string.
 //
