@@ -290,10 +290,11 @@ var invalidDecodingTestCases = [...]Base32{
 	"\u0000",
 }
 
-// BenchmarkEncode  2000000         807 ns/op # string concat uint32
-// BenchmarkEncode 10000000         132 ns/op # [7]byte buffer uint32
-// BenchmarkEncode 10000000         202 ns/op # Adds Check retval
-// BenchmarkEncode 10000000         134 ns/op         8 B/op        1 allocs/op
+// BenchmarkEncode  2000000         807   ns/op                                   # string concat uint32
+// BenchmarkEncode 10000000         132   ns/op                                   # [7]byte buffer uint32
+// BenchmarkEncode 10000000         202   ns/op                                   # Adds Check retval
+// BenchmarkEncode 10000000         134   ns/op         8 B/op        1 allocs/op
+// BenchmarkEncode 20000000          93.1 ns/op         8 B/op        1 allocs/op # Go 1.2
 func BenchmarkEncode(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
@@ -305,6 +306,8 @@ func BenchmarkEncode(b *testing.B) {
 // BenchmarkDecode 20000000          80.1 ns/op         0 B/op        0 allocs/op # Uses validBase32Digit map to check for valid rune.
 // BenchmarkDecode 50000000          35.8 ns/op         0 B/op        0 allocs/op # Do manual check on rune to see if its valid.
 // BenchmarkDecode 50000000          56.5 ns/op         0 B/op        0 allocs/op # Add checks for 'o' and 'O'.
+// BenchmarkDecode 50000000          52.0 ns/op         0 B/op        0 allocs/op # Adds invalidDecodeRune
+// BenchmarkDecode 50000000          54.0 ns/op         0 B/op        0 allocs/op # Go 1.2
 func BenchmarkDecode(b *testing.B) {
 	var base32 Base32
 
@@ -320,6 +323,7 @@ func BenchmarkDecode(b *testing.B) {
 // BenchmarkWillFit  1000000000           2.01 ns/op        0 B/op        0 allocs/op # 8-digit
 // BenchmarkWillFit   100000000          14.5 ns/op         0 B/op        0 allocs/op # 7-digit, string compare
 // BenchmarkWillFit  1000000000           2.39 ns/op        0 B/op        0 allocs/op # 7-digit, rune compare
+// BenchmarkWillFit  500000000            6.44 ns/op        0 B/op        0 allocs/op # Go 1.2
 func BenchmarkWillFit(b *testing.B) {
 	var base32 Base32
 
@@ -334,6 +338,7 @@ func BenchmarkWillFit(b *testing.B) {
 // BenchmarkFromString_easy  50000000          68.0 ns/op         0 B/op        0 allocs/op # For an easy input value
 // BenchmarkFromString_easy  50000000          64.6 ns/op         0 B/op        0 allocs/op # delete using copy()
 // BenchmarkFromString_easy  50000000          62.9 ns/op         0 B/op        0 allocs/op # Manual validity check
+// BenchmarkFromString_easy  50000000          61.7 ns/op         0 B/op        0 allocs/op # Go 1.2
 func BenchmarkFromString_easy(b *testing.B) {
 	input := "EXAMP1E" // An easy input value
 	b.ReportAllocs()
@@ -349,7 +354,8 @@ func BenchmarkFromString_easy(b *testing.B) {
 // BenchmarkFromString_hard   5000000         473 ns/op          32 B/op        2 allocs/op # Manual validity check
 // BenchmarkFromString_hard   5000000         443 ns/op          32 B/op        2 allocs/op # Copy over bytes manually
 // BenchmarkFromString_hard   5000000         406 ns/op          32 B/op        2 allocs/op # More manual fiddling.
-// BenchmarkFromString_hard   5000000         417 ns/op          24 B/op        2 allocs/op # Interior hyphen count.
+// BenchmarkFromString_hard   5000000         417 ns/op          24 B/op        2 allocs/op # Interior hyphen count
+// BenchmarkFromString_hard   5000000         367 ns/op          24 B/op        2 allocs/op # Go 1.2
 func BenchmarkFromString_hard(b *testing.B) {
 	input := "AAA-bbb-o-l" // A hard input value
 	b.ReportAllocs()
@@ -363,6 +369,7 @@ func BenchmarkFromString_hard(b *testing.B) {
 // BenchmarkFromString_invalid 10000000         283 ns/op           0 B/op        0 allocs/op # Invalid input, do check before alloc
 // BenchmarkFromString_invalid 10000000         280 ns/op           0 B/op        0 allocs/op # delete using copy()
 // BenchmarkFromString_invalid 10000000         150 ns/op           0 B/op        0 allocs/op # Manual validity check
+// BenchmarkFromString_invalid 10000000         156 ns/op           0 B/op        0 allocs/op # Go 1.2
 func BenchmarkFromString_invalid(b *testing.B) {
 	input := "--00invalid***/" // An invalid input value
 	b.ReportAllocs()
@@ -374,6 +381,7 @@ func BenchmarkFromString_invalid(b *testing.B) {
 
 // BenchmarkTrim 20000000          71.2 ns/op         0 B/op        0 allocs/op # Baseline for input "00-oo-00TEST"
 // BenchmarkTrim 100000000         11.0 ns/op         0 B/op        0 allocs/op # For input "TEST"
+// BenchmarkTrim 20000000          68.4 ns/op         0 B/op        0 allocs/op # Go 1.2 for input "00-oo-00TEST"
 func BenchmarkTrim(b *testing.B) {
 	input := "00-oo-00TEST"
 	b.ReportAllocs()
@@ -396,6 +404,8 @@ func BenchmarkTrim(b *testing.B) {
 //
 // BenchmarkPad  20000000         109 ns/op         8 B/op      1 allocs/op # Simple for loop, width = 8
 // BenchmarkPad  10000000         232 ns/op        64 B/op      1 allocs/op # Same but width = 60
+//
+// BenchmarkPad  20000000          95.3 ns/op         8 B/op        1 allocs/op # Go 1.2, width = 8, input = "ABC"
 func BenchmarkPad(b *testing.B) {
 	const width = uint8(8)
 	base32 := Base32("ABC")
