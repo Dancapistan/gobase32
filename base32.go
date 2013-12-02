@@ -344,6 +344,9 @@ func (num Base32) String() string {
 
 // String implements the Stringer interface for Check types.
 func (check Check) String() string {
+	if check == InvalidCheckValue {
+		return "<invalid>"
+	}
 	return string(check)
 }
 
