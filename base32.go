@@ -437,7 +437,7 @@ func GenerateCheck(num uint32) Check {
 }
 
 var (
-	invalidCheckLength = errors.New("A check string must be exactly 1 character long")
+	invalidCheckLength = errors.New("A check string must be exactly 1 byte long")
 	invalidCheckDigit  = errors.New("The input value is not a valid checksum digit")
 )
 
@@ -448,7 +448,7 @@ var (
 //
 // Possible failure cases are:
 //
-// - The input string must be exactly 1 character long to be a valid Check value.
+// - The input string must be exactly 1 byte long to be a valid Check value.
 //
 // - The input character must be a valid Check value. See type Check for a
 // list of valid Check digits and corresponding error corrections.
@@ -457,6 +457,9 @@ var (
 func CheckFromString(input string) (result Check, err error) {
 
 	if len(input) != 1 {
+		// TODO: This will cause UTF-8 characters with a width greater than 1
+		// byte to fail with the wrong error message. I changed
+		// invalidCheckLength to reflect this.
 		return InvalidCheckValue, invalidCheckLength
 	}
 
